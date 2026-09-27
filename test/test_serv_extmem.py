@@ -15,6 +15,11 @@ async def test_serv_executes_c_firmware_from_serial_memory(dut):
     # First .data word is the smoke-model input packed little-endian:
     # [12, -6, 8, 3]. The firmware subsequently reads it from PSRAM.
     assert int(dut.memory_model.psram_low[0].value) == 0x0308FA0C
+    # The final smoke-model output is dot([12, -6, 8, 3], [2, 3, 4, -1])
+    # plus bias 4, followed by ReLU: 19.  Checking it at the signature
+    # proves that the external-memory boot path exercised the INT8 MAC.
+    assert int(dut.mac_done.value) == 1
+    assert int(dut.mac_result.value) == 19
 
 
 @cocotb.test()
