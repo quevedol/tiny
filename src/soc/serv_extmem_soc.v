@@ -44,7 +44,7 @@ module serv_extmem_soc #(
   wire        cpu_clk;
 
   // Reset keeps the CPU clock enabled because SERV reset is synchronous. The
-  // wrapper becomes a sky130_fd_sc_hd__dlclkp instance during hardening.
+  // wrapper becomes a sky130_fd_sc_hd__dlclkp_4 instance during hardening.
   sky130_clock_gate cpu_clock_gate (
       .clk_i  (clk),
       .gate_i (cpu_clk_enable),

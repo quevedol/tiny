@@ -18,7 +18,7 @@ module sky130_clock_gate (
 );
 
 `ifdef SKY130_CLOCK_GATE
-  sky130_fd_sc_hd__dlclkp gate_cell (
+  sky130_fd_sc_hd__dlclkp_4 gate_cell (
       .GCLK (gclk_o),
       .GATE (gate_i),
       .CLK  (clk_i)

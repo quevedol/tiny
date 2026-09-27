@@ -35,7 +35,7 @@ infraestructura, arquitectura y modelo en un mismo cambio.
   - Aceptación: pasa antes y después de sustituir el clock-gating.
 
 - [x] **Implementar el clock-gating de SERV.**
-  - Entrega: wrapper con latch RTL e ICG `sky130_fd_sc_hd__dlclkp`, más test
+  - Entrega: wrapper con latch RTL e ICG `sky130_fd_sc_hd__dlclkp_4`, más test
     que verifica que no se trunca el pulso cuando inicia una espera SPI.
   - Pendiente de aceptación: RTL, gate-level y timing sin reloj lógico.
 

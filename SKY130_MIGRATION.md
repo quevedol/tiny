@@ -16,7 +16,7 @@ ha cambiado para SkyWater `sky130A`.
   wrapper no cambia: `clk`, `rst_n`, 8 `ui`, 8 `uo` y 8 `uio`.
 - El reloj de SERV se pausa con un wrapper de clock-gating. En RTL usa un
   latch transparente en fase baja; durante hardening, `VERILOG_DEFINES` activa
-  la celda integrada `sky130_fd_sc_hd__dlclkp`.
+  la celda integrada `sky130_fd_sc_hd__dlclkp_4`.
 
 ## Línea base verificable
 
