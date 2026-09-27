@@ -37,17 +37,18 @@ ha cambiado para SkyWater `sky130A`.
   acumula cada producto INT8 en ocho ciclos mediante desplazamientos y sumas.
   El acceso MMIO al comando MAC espera esos ciclos, por lo que el firmware no
   cambia. Las regresiones de 10 000 productos y del boot serie siguen pasando.
-  El hardening posterior con ese MAC también falló en colocación detallada;
-  el candidato actual pasa a `3x3` con densidad objetivo de 70%.
+  El hardening posterior con ese MAC también falló en colocación detallada.
+  `3x3` no es una geometría válida del template Sky130, por lo que el
+  candidato actual pasa a `3x4` con densidad objetivo de 70%.
 
 ## Bloqueos antes de aplicar a tapeout
 
 1. **Fijar el shuttle.** Los workflows usan las etiquetas del template Sky130
    vigente. Antes de publicar, hay que sustituirlas por las que correspondan
    exactamente al shuttle aceptando solicitudes en Tiny Tapeout.
-2. **Harden `3x3`.** El primer P&R excede `2x2` por 24.941% y tres intentos
-   en `3x2` no superaron colocación detallada. El tamaño `3x3`
-   es el nuevo candidato y
+2. **Harden `3x4`.** El primer P&R excede `2x2` por 24.941% y tres intentos
+   en `3x2` no superaron colocación detallada. `3x3` no está permitido por el
+   template; `3x4` es el siguiente tamaño válido con área suficiente y
    debe superar colocación, ruteo, timing, DRC y LVS.
 3. **Validar el clock-gating.** `serv_extmem_soc.v` ahora usa una ICG Sky130
    durante hardening. Aún debe completar RTL, gate-level y timing.
@@ -59,6 +60,6 @@ ha cambiado para SkyWater `sky130A`.
 
 1. Ejecutar el workflow Sky130 y resolver lint/precheck.
 2. Ejecutar gate-level simulation con el netlist generado.
-3. Inspeccionar área, congestión y slack; decidir si `3x3` cabe.
+3. Inspeccionar área, congestión y slack; decidir si `3x4` cabe.
 4. Implementar o validar la solución Sky130 de clock-gating.
 5. Actualizar el tag del shuttle, `info.yaml` y la solicitud de Tiny Tapeout.

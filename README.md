@@ -2,9 +2,9 @@
 
 # SERV TinyML SoC for Sky130
 
-This repository is the Sky130 migration of the SERV TinyML design. It targets a provisional `3x3` Tiny Tapeout block and combines a SERV RV32I CPU, a signed INT8 MAC accelerator and external SPI Flash/PSRAM for a compact TinyML demonstrator.
+This repository is the Sky130 migration of the SERV TinyML design. It targets a provisional `3x4` Tiny Tapeout block and combines a SERV RV32I CPU, a signed INT8 MAC accelerator and external SPI Flash/PSRAM for a compact TinyML demonstrator.
 
-The source RTL is portable, but this branch must pass Sky130 hardening before `3x3` can be considered a valid area commitment. See [the Sky130 migration checklist](SKY130_MIGRATION.md).
+The source RTL is portable, but this branch must pass Sky130 hardening before `3x4` can be considered a valid area commitment. See [the Sky130 migration checklist](SKY130_MIGRATION.md).
 
 - [Project guide and current status](PROJECT_GUIDE.md)
 - [Student handoff](STUDENT_HANDOFF.md)
