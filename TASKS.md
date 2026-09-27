@@ -43,7 +43,8 @@ infraestructura, arquitectura y modelo en un mismo cambio.
   - Responsable: nosotros.
   - Entrega: P&R 3x2 y, si hace falta, rediseño de la ruta de datos de mayor
     área.
-  - Aceptación: P&R bajo 80% antes de CTS, con margen suficiente para ruteo.
+  - Aceptación: colocación detallada, ruteo y timing aprobados con margen
+    suficiente para cierre físico.
 
 - [ ] **Confirmar el tamaño definitivo.**
   - Responsable: supervisor, basado en el reporte físico.

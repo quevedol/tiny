@@ -30,8 +30,9 @@ ha cambiado para SkyWater `sky130A`.
 - El primer hardening Sky130 confirmó que el diseño actual **no cabe en 2x2**:
   `88 282.219 um^2` de celdas frente a `72 564.595 um^2` de core, o `124.941%`
   de utilización. El fallo fue `GPL-0301`, antes de ruteo, timing o DRC. La
-  siguiente iteración usa `3x2`: estima `81.2%` de utilización antes de CTS,
-  con `PL_TARGET_DENSITY_PCT=80`; deberá validarse con P&R completo.
+  siguiente iteración usa `3x2`: estima `81.2%` de utilización antes de CTS.
+  El primer intento 3x2 alcanzó CTS, pero detallado placement falló con
+  `PL_TARGET_DENSITY_PCT=80`; la siguiente iteración usa 90 según `GPL-0302`.
 
 ## Bloqueos antes de aplicar a tapeout
 
