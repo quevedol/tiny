@@ -35,6 +35,8 @@ module mac_mmio (
   reg               relu_q;
   reg [4:0]         shift_q;
   reg               done_q;
+  reg               mac_command_active_q;
+  reg               mac_command_complete_q;
 
   wire write_access = bus_cyc_i && bus_we_i;
   wire cmd_write = write_access && bus_addr_i[5:2] == CMD_REG;
@@ -45,8 +47,10 @@ module mac_mmio (
   wire signed [7:0] result_w;
   wire mac_done_w;
   wire overflow_w;
+  wire mac_busy_w;
+  wire mac_start_w = mac_valid_w && !mac_command_active_q;
 
-  assign bus_ack_o = bus_cyc_i;
+  assign bus_ack_o = bus_cyc_i && (!mac_valid_w || mac_command_complete_q);
   assign result_o = result_w;
   assign done_o = done_q;
   assign overflow_o = overflow_w;
@@ -59,7 +63,19 @@ module mac_mmio (
       relu_q       <= 1'b0;
       shift_q      <= 5'd0;
       done_q       <= 1'b0;
+      mac_command_active_q <= 1'b0;
+      mac_command_complete_q <= 1'b0;
     end else begin
+      if (!bus_cyc_i || !mac_valid_w) begin
+        mac_command_active_q <= 1'b0;
+        mac_command_complete_q <= 1'b0;
+      end else begin
+        if (!mac_command_active_q)
+          mac_command_active_q <= 1'b1;
+        if (mac_done_w)
+          mac_command_complete_q <= 1'b1;
+      end
+
       if (write_access) begin
         case (bus_addr_i[5:2])
           ACTIVATION_REG: if (bus_sel_i[0]) activation_q <= bus_wdata_i[7:0];
@@ -88,7 +104,7 @@ module mac_mmio (
       BIAS_REG:        bus_rdata_o = bias_q;
       ACCUMULATOR_REG: bus_rdata_o = accumulator_w;
       RESULT_REG:      bus_rdata_o = {{24{result_w[7]}}, result_w};
-      STATUS_REG:      bus_rdata_o = {30'd0, overflow_w, done_q};
+      STATUS_REG:      bus_rdata_o = {29'd0, mac_busy_w, overflow_w, done_q};
       CONFIG_REG:      bus_rdata_o = {26'd0, shift_q, relu_q};
       default:          bus_rdata_o = 32'h0000_0000;
     endcase
@@ -99,7 +115,7 @@ module mac_mmio (
       .rst_n         (rst_n),
       .clear_i       (clear_w),
       .load_bias_i   (load_bias_w),
-      .mac_valid_i   (mac_valid_w),
+      .mac_valid_i   (mac_start_w),
       .relu_i        (relu_q),
       .shift_i       (shift_q),
       .activation_i  (activation_q),
@@ -108,7 +124,8 @@ module mac_mmio (
       .accumulator_o (accumulator_w),
       .result_o      (result_w),
       .done_o        (mac_done_w),
-      .overflow_o    (overflow_w)
+      .overflow_o    (overflow_w),
+      .busy_o        (mac_busy_w)
   );
 
 endmodule

@@ -170,7 +170,7 @@ Hallazgo y solución de arquitectura: SERV configurado con `W=1` no puede avanza
 - [x] Crear driver C.
 - [x] Ejecutar 10 000 vectores aleatorios contra la referencia Python, por MMIO.
 
-Registros MAC (`0x2000_0000`): `CMD` +`0x00` (`clear`, `load_bias`, `mac_valid`), activación +`0x04`, peso +`0x08`, bias +`0x0c`, acumulador +`0x10`, resultado INT8 con extensión de signo +`0x14`, estado (`done`, `overflow`) +`0x18` y configuración (`relu`, `shift`) +`0x1c`.
+Registros MAC (`0x2000_0000`): `CMD` +`0x00` (`clear`, `load_bias`, `mac_valid`), activación +`0x04`, peso +`0x08`, bias +`0x0c`, acumulador +`0x10`, resultado INT8 con extensión de signo +`0x14`, estado (`done`, `overflow`, `busy`) +`0x18` y configuración (`relu`, `shift`) +`0x1c`. El comando `mac_valid` conserva la transacción MMIO hasta terminar: cada producto usa ocho ciclos de reloj para reducir área física; el firmware no requiere espera adicional.
 
 ## Fase 6 - Modelo TinyML
 

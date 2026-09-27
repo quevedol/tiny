@@ -41,8 +41,8 @@ infraestructura, arquitectura y modelo en un mismo cambio.
 
 - [ ] **Obtener margen de área en 3x2.**
   - Responsable: nosotros.
-  - Entrega: P&R 3x2 y, si hace falta, rediseño de la ruta de datos de mayor
-    área.
+  - Entrega: P&R 3x2. Se sustituyó el multiplicador paralelo por un MAC
+    secuencial de ocho ciclos; falta medir su efecto físico.
   - Aceptación: colocación detallada, ruteo y timing aprobados con margen
     suficiente para cierre físico.
 

@@ -32,7 +32,11 @@ ha cambiado para SkyWater `sky130A`.
   de utilización. El fallo fue `GPL-0301`, antes de ruteo, timing o DRC. La
   siguiente iteración usa `3x2`: estima `81.2%` de utilización antes de CTS.
   El primer intento 3x2 alcanzó CTS, pero detallado placement falló con
-  `PL_TARGET_DENSITY_PCT=80`; la siguiente iteración usa 90 según `GPL-0302`.
+  `PL_TARGET_DENSITY_PCT=80`; la repetición con 90 volvió a fallar en
+  `DPL-0036`. Por ello el MAC dejó de usar un multiplicador paralelo: ahora
+  acumula cada producto INT8 en ocho ciclos mediante desplazamientos y sumas.
+  El acceso MMIO al comando MAC espera esos ciclos, por lo que el firmware no
+  cambia. Las regresiones de 10 000 productos y del boot serie siguen pasando.
 
 ## Bloqueos antes de aplicar a tapeout
 
@@ -40,7 +44,8 @@ ha cambiado para SkyWater `sky130A`.
    vigente. Antes de publicar, hay que sustituirlas por las que correspondan
    exactamente al shuttle aceptando solicitudes en Tiny Tapeout.
 2. **Harden `3x2`.** El primer P&R excede `2x2` por 24.941%. El tamaño `3x2`
-   es el nuevo candidato y debe superar colocación, ruteo, timing, DRC y LVS.
+   es el nuevo candidato; el siguiente intento medirá la reducción del MAC y
+   debe superar colocación, ruteo, timing, DRC y LVS.
 3. **Validar el clock-gating.** `serv_extmem_soc.v` ahora usa una ICG Sky130
    durante hardening. Aún debe completar RTL, gate-level y timing.
 4. **Comprobar hardware externo.** El diseño usa 50 MHz de reloj de entrada y

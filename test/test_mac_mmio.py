@@ -19,9 +19,13 @@ async def write_reg(dut, offset, value):
     dut.bus_sel.value = 0xF
     dut.bus_we.value = 1
     dut.bus_cyc.value = 1
-    await RisingEdge(dut.clk)
-    await Timer(1, unit="ns")
-    assert int(dut.bus_ack.value) == 1
+    for _ in range(16):
+        await RisingEdge(dut.clk)
+        await Timer(1, unit="ns")
+        if int(dut.bus_ack.value) == 1:
+            break
+    else:
+        assert False, "MMIO write did not complete"
     await FallingEdge(dut.clk)
     dut.bus_cyc.value = 0
     dut.bus_we.value = 0
