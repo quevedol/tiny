@@ -19,7 +19,7 @@ infraestructura, arquitectura y modelo en un mismo cambio.
   - Responsable: estudiante.
   - Entrega: diagnóstico reproducible: `GPL-0301`, 124.941% de utilización
     (`88 282.219 um^2` de celdas sobre `72 564.595 um^2` de core 2x2).
-  - Aceptación: `2x2` queda descartado; el próximo hardening será `3x2`.
+  - Aceptación: `2x2` queda descartado; se evaluó `3x2` antes de pasar a `3x3`.
 
 - [ ] **Ejecutar gate-level simulation Sky130.**
   - Responsable: estudiante.
@@ -39,10 +39,10 @@ infraestructura, arquitectura y modelo en un mismo cambio.
     que verifica que no se trunca el pulso cuando inicia una espera SPI.
   - Pendiente de aceptación: RTL, gate-level y timing sin reloj lógico.
 
-- [ ] **Obtener margen de área en 3x2.**
+- [ ] **Obtener margen de área en 3x3.**
   - Responsable: nosotros.
-  - Entrega: P&R 3x2. Se sustituyó el multiplicador paralelo por un MAC
-    secuencial de ocho ciclos; falta medir su efecto físico.
+  - Entrega: P&R 3x3. Tres intentos 3x2 fallaron durante colocación detallada,
+    incluso tras sustituir el multiplicador paralelo por un MAC secuencial.
   - Aceptación: colocación detallada, ruteo y timing aprobados con margen
     suficiente para cierre físico.
 

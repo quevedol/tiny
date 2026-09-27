@@ -30,21 +30,24 @@ ha cambiado para SkyWater `sky130A`.
 - El primer hardening Sky130 confirmó que el diseño actual **no cabe en 2x2**:
   `88 282.219 um^2` de celdas frente a `72 564.595 um^2` de core, o `124.941%`
   de utilización. El fallo fue `GPL-0301`, antes de ruteo, timing o DRC. La
-  siguiente iteración usa `3x2`: estima `81.2%` de utilización antes de CTS.
+  siguiente iteración usó `3x2`: estimaba `81.2%` de utilización antes de CTS.
   El primer intento 3x2 alcanzó CTS, pero detallado placement falló con
   `PL_TARGET_DENSITY_PCT=80`; la repetición con 90 volvió a fallar en
   `DPL-0036`. Por ello el MAC dejó de usar un multiplicador paralelo: ahora
   acumula cada producto INT8 en ocho ciclos mediante desplazamientos y sumas.
   El acceso MMIO al comando MAC espera esos ciclos, por lo que el firmware no
   cambia. Las regresiones de 10 000 productos y del boot serie siguen pasando.
+  El hardening posterior con ese MAC también falló en colocación detallada;
+  el candidato actual pasa a `3x3` con densidad objetivo de 70%.
 
 ## Bloqueos antes de aplicar a tapeout
 
 1. **Fijar el shuttle.** Los workflows usan las etiquetas del template Sky130
    vigente. Antes de publicar, hay que sustituirlas por las que correspondan
    exactamente al shuttle aceptando solicitudes en Tiny Tapeout.
-2. **Harden `3x2`.** El primer P&R excede `2x2` por 24.941%. El tamaño `3x2`
-   es el nuevo candidato; el siguiente intento medirá la reducción del MAC y
+2. **Harden `3x3`.** El primer P&R excede `2x2` por 24.941% y tres intentos
+   en `3x2` no superaron colocación detallada. El tamaño `3x3`
+   es el nuevo candidato y
    debe superar colocación, ruteo, timing, DRC y LVS.
 3. **Validar el clock-gating.** `serv_extmem_soc.v` ahora usa una ICG Sky130
    durante hardening. Aún debe completar RTL, gate-level y timing.
@@ -56,6 +59,6 @@ ha cambiado para SkyWater `sky130A`.
 
 1. Ejecutar el workflow Sky130 y resolver lint/precheck.
 2. Ejecutar gate-level simulation con el netlist generado.
-3. Inspeccionar área, congestión y slack; decidir si `3x2` cabe.
+3. Inspeccionar área, congestión y slack; decidir si `3x3` cabe.
 4. Implementar o validar la solución Sky130 de clock-gating.
 5. Actualizar el tag del shuttle, `info.yaml` y la solicitud de Tiny Tapeout.

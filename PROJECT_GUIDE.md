@@ -4,7 +4,7 @@
 
 - Shuttle: **Tiny Tapeout Sky130**; la etiqueta exacta se fijará al abrir la solicitud.
 - Proceso: **SkyWater SKY130A 130 nm**.
-- Área reservada: **3x2 (6 tiles)**.
+- Área reservada: **3x3 (9 tiles)**.
 - Arquitectura: **SERV RV32I + MAC INT8 + QSPI Flash/PSRAM externa**.
 - Usuario GitHub y prefijo del top module: **quevedol**.
 - Frecuencia objetivo inicial: **50 MHz internos, QSPI hasta 25 MHz**.
@@ -19,7 +19,7 @@ Esta guía es la fuente de verdad del proyecto. Cada fase debe actualizarse cuan
 
 El diseño estará listo para enviar cuando:
 
-1. Queda en un bloque `3x2` con utilización y congestión aceptables.
+1. Queda en un bloque `3x3` con utilización y congestión aceptables.
 2. Arranca firmware RISC-V desde QSPI Flash.
 3. Lee y escribe la PSRAM del QSPI Pmod.
 4. Ejecuta firmware bare-metal compilado desde C.
@@ -78,7 +78,7 @@ Durante el bring-up inicial el wrapper usa temporalmente `ui_in` y `uio_in` como
 
 ## Fase 0 - Reserva y control de riesgo
 
-- [ ] Confirmar disponibilidad de `3x2` tiles en el shuttle Sky130 seleccionado.
+- [ ] Confirmar disponibilidad de `3x3` tiles en el shuttle Sky130 seleccionado.
 - [x] Confirmar precio y reservar/comprar el espacio.
 - [ ] Confirmar disponibilidad física del QSPI Pmod.
 - [ ] Confirmar la fecha interna de congelamiento propuesta antes del cierre.
@@ -105,13 +105,13 @@ Funciones opcionales, en orden de prioridad:
 
 - [x] Aplicar la infraestructura oficial `ttsky-verilog-template`.
 - [x] Inicializar la rama principal `main`.
-- [x] Configurar `3x2`, 50 MHz y top module inicial.
+- [x] Configurar `3x3`, 50 MHz y top module inicial.
 - [x] Registrar el pinout objetivo en `info.yaml`.
 - [x] Añadir estructura inicial para RTL, firmware y modelo.
 - [x] Ejecutar el primer test RTL en el entorno local.
 - [ ] Confirmar que GitHub Actions genera documentación y GDS.
 
-Validación inicial: compilación con Icarus Verilog y pruebas Cocotb aprobadas a 50 MHz. La estimación de celdas genéricas no representa el área final en SKY130; se requiere hardening Sky130 antes de congelar `3x2`.
+Validación inicial: compilación con Icarus Verilog y pruebas Cocotb aprobadas a 50 MHz. La estimación de celdas genéricas no representa el área final en SKY130; se requiere hardening Sky130 antes de congelar `3x3`.
 
 ## Fase 2 - SERV y firmware mínimo
 
