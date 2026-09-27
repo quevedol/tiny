@@ -29,16 +29,17 @@ ha cambiado para SkyWater `sky130A`.
   medición de área, congestión o timing Sky130.
 - El primer hardening Sky130 confirmó que el diseño actual **no cabe en 2x2**:
   `88 282.219 um^2` de celdas frente a `72 564.595 um^2` de core, o `124.941%`
-  de utilización. El fallo fue `GPL-0301`, antes de ruteo, timing o DRC.
+  de utilización. El fallo fue `GPL-0301`, antes de ruteo, timing o DRC. La
+  siguiente iteración usa `3x2`: estima `81.2%` de utilización antes de CTS,
+  con `PL_TARGET_DENSITY_PCT=80`; deberá validarse con P&R completo.
 
 ## Bloqueos antes de aplicar a tapeout
 
 1. **Fijar el shuttle.** Los workflows usan las etiquetas del template Sky130
    vigente. Antes de publicar, hay que sustituirlas por las que correspondan
    exactamente al shuttle aceptando solicitudes en Tiny Tapeout.
-2. **Recuperar área para `2x2`.** El primer P&R excede el core por 24.941%.
-   Hace falta una reducción arquitectónica antes de poder intentar ruteo,
-   timing, DRC o LVS en este tamaño.
+2. **Harden `3x2`.** El primer P&R excede `2x2` por 24.941%. El tamaño `3x2`
+   es el nuevo candidato y debe superar colocación, ruteo, timing, DRC y LVS.
 3. **Validar el clock-gating.** `serv_extmem_soc.v` ahora usa una ICG Sky130
    durante hardening. Aún debe completar RTL, gate-level y timing.
 4. **Comprobar hardware externo.** El diseño usa 50 MHz de reloj de entrada y
@@ -49,6 +50,6 @@ ha cambiado para SkyWater `sky130A`.
 
 1. Ejecutar el workflow Sky130 y resolver lint/precheck.
 2. Ejecutar gate-level simulation con el netlist generado.
-3. Inspeccionar área, congestión y slack; decidir si `2x2` cabe.
+3. Inspeccionar área, congestión y slack; decidir si `3x2` cabe.
 4. Implementar o validar la solución Sky130 de clock-gating.
 5. Actualizar el tag del shuttle, `info.yaml` y la solicitud de Tiny Tapeout.

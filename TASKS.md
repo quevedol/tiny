@@ -19,7 +19,7 @@ infraestructura, arquitectura y modelo en un mismo cambio.
   - Responsable: estudiante.
   - Entrega: diagnóstico reproducible: `GPL-0301`, 124.941% de utilización
     (`88 282.219 um^2` de celdas sobre `72 564.595 um^2` de core 2x2).
-  - Aceptación: el tamaño actual está descartado hasta recuperar área.
+  - Aceptación: `2x2` queda descartado; el próximo hardening será `3x2`.
 
 - [ ] **Ejecutar gate-level simulation Sky130.**
   - Responsable: estudiante.
@@ -39,14 +39,15 @@ infraestructura, arquitectura y modelo en un mismo cambio.
     que verifica que no se trunca el pulso cuando inicia una espera SPI.
   - Pendiente de aceptación: RTL, gate-level y timing sin reloj lógico.
 
-- [ ] **Reducir el área para 2x2.**
+- [ ] **Obtener margen de área en 3x2.**
   - Responsable: nosotros.
-  - Entrega: perfil por bloque y rediseño de la ruta de datos de mayor área.
-  - Aceptación: P&R bajo 100%, con margen suficiente para ruteo.
+  - Entrega: P&R 3x2 y, si hace falta, rediseño de la ruta de datos de mayor
+    área.
+  - Aceptación: P&R bajo 80% antes de CTS, con margen suficiente para ruteo.
 
-- [ ] **Decidir el tamaño definitivo.**
+- [ ] **Confirmar el tamaño definitivo.**
   - Responsable: supervisor, basado en el reporte físico.
-  - Entrega: `info.yaml` congelado en 2x2, 3x3 u otra alternativa.
+  - Entrega: `info.yaml` congelado en 3x2, 3x3 u otra alternativa.
   - Aceptación: P&R y timing aprobados para ese tamaño.
 
 - [ ] **Validar el hardware externo.**
