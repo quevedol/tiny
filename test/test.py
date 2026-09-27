@@ -24,11 +24,14 @@ async def test_project(dut):
     dut.rst_n.value = 1
 
     dut._log.info("Check the external-memory pin ownership")
-    await Timer(1, unit="ns")
+    # The gate-level netlist contains real Sky130 output stages with unit
+    # delays.  Allow those stages to settle after reset before sampling pins.
+    await Timer(20, unit="ns")
     assert int(dut.uio_oe.value) == 0xCB
     assert int(dut.uio_out.value) & 0xC1 == 0xC1
 
     # ena holds the SoC in reset, so no serial transaction may be initiated.
     dut.ena.value = 0
     await ClockCycles(dut.clk, 2)
+    await Timer(20, unit="ns")
     assert int(dut.uio_out.value) & 0xC1 == 0xC1
