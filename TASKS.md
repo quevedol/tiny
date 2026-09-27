@@ -19,7 +19,7 @@ infraestructura, arquitectura y modelo en un mismo cambio.
   - Responsable: estudiante.
   - Entrega: diagnóstico reproducible: `GPL-0301`, 124.941% de utilización
     (`88 282.219 um^2` de celdas sobre `72 564.595 um^2` de core 2x2).
-  - Aceptación: `2x2` queda descartado; se evaluó `3x2` antes de pasar a `3x4`.
+  - Aceptación: `2x2` queda descartado; se evaluó `3x2` y un baseline 3x4.
 
 - [ ] **Ejecutar gate-level simulation Sky130.**
   - Responsable: estudiante.
@@ -39,16 +39,16 @@ infraestructura, arquitectura y modelo en un mismo cambio.
     que verifica que no se trunca el pulso cuando inicia una espera SPI.
   - Pendiente de aceptación: RTL, gate-level y timing sin reloj lógico.
 
-- [ ] **Obtener margen de área en 3x4.**
+- [ ] **Obtener margen de área en 4x2.**
   - Responsable: nosotros.
-  - Entrega: P&R 3x4. Tres intentos 3x2 fallaron durante colocación detallada;
-    `3x3` no es un tamaño válido del template.
+  - Entrega: P&R 4x2. El baseline 3x4 generó GDS con 35.310% de utilización;
+    4x2 debe conservar cierre con menos tiles.
   - Aceptación: colocación detallada, ruteo y timing aprobados con margen
     suficiente para cierre físico.
 
 - [ ] **Confirmar el tamaño definitivo.**
   - Responsable: supervisor, basado en el reporte físico.
-  - Entrega: `info.yaml` congelado en 3x4 u otra alternativa válida.
+  - Entrega: `info.yaml` congelado en 4x2 u otra alternativa válida.
   - Aceptación: P&R y timing aprobados para ese tamaño.
 
 - [ ] **Validar el hardware externo.**
