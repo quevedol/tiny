@@ -50,8 +50,16 @@ module tt_um_quevedol_serv_tinyml (
 
   // uio[2] is the only input in the initial SPI-compatible memory path.
   // SD2/SD3 remain tri-stated until the Quad transfer engine is introduced.
-  assign uio_out = {1'b1, psram_a_cs_n, 1'b0, 1'b0,
-                    sck, 1'b0, mosi, flash_cs_n};
+  // Keep both memories deselected while the SoC is held in reset.  The SPI
+  // controller itself is synchronously reset, so this also defines the pad
+  // state before its first active clock edge.
+  wire flash_cs_n_safe   = soc_rst_n ? flash_cs_n   : 1'b1;
+  wire psram_a_cs_n_safe = soc_rst_n ? psram_a_cs_n : 1'b1;
+  wire sck_safe          = soc_rst_n ? sck          : 1'b0;
+  wire mosi_safe         = soc_rst_n ? mosi         : 1'b0;
+
+  assign uio_out = {1'b1, psram_a_cs_n_safe, 1'b0, 1'b0,
+                    sck_safe, 1'b0, mosi_safe, flash_cs_n_safe};
   assign uio_oe  = 8'b1100_1011;
 
   wire _unused = &{ui_in, status, status_valid, 1'b0};
