@@ -1,0 +1,13 @@
+SIM ?= icarus
+FST ?= -fst
+TOPLEVEL_LANG ?= verilog
+SRC_DIR = $(PWD)/../src
+
+SIM_BUILD = sim_build/mac
+VERILOG_SOURCES = $(SRC_DIR)/accel/mac_int8.v $(SRC_DIR)/accel/mac_mmio.v $(PWD)/mac_mmio_tb.v
+COMPILE_ARGS += -I$(SRC_DIR)
+TOPLEVEL = mac_mmio_tb
+COCOTB_TEST_MODULES = test_mac_mmio
+COCOTB_RESULTS_FILE = results-mac-mmio.xml
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

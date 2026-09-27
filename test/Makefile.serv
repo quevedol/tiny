@@ -1,0 +1,36 @@
+SIM ?= icarus
+FST ?= -fst
+TOPLEVEL_LANG ?= verilog
+SRC_DIR = $(PWD)/../src
+
+SERV_SOURCES = accel/mac_int8.v \
+	accel/mac_mmio.v \
+	periph/uart_tx.v \
+	soc/serv_soc.v \
+	cpu/serv_cpu.v \
+	cpu/serv/serv_bufreg.v \
+	cpu/serv/serv_bufreg2.v \
+	cpu/serv/serv_alu.v \
+	cpu/serv/serv_csr.v \
+	cpu/serv/serv_ctrl.v \
+	cpu/serv/serv_decode.v \
+	cpu/serv/serv_immdec.v \
+	cpu/serv/serv_mem_if.v \
+	cpu/serv/serv_rf_if.v \
+	cpu/serv/serv_rf_ram_if.v \
+	cpu/serv/serv_rf_ram.v \
+	cpu/serv/serv_state.v \
+	cpu/serv/serv_debug.v \
+	cpu/serv/serv_top.v \
+	cpu/serv/serv_rf_top.v \
+	cpu/serv/serv_aligner.v \
+	cpu/serv/serv_compdec.v
+
+SIM_BUILD = sim_build/serv
+VERILOG_SOURCES = $(addprefix $(SRC_DIR)/,$(SERV_SOURCES)) $(PWD)/serv_tb.v
+COMPILE_ARGS += -I$(SRC_DIR)
+TOPLEVEL = serv_tb
+COCOTB_TEST_MODULES = test_serv
+COCOTB_RESULTS_FILE = results-serv.xml
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

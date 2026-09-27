@@ -1,0 +1,15 @@
+{
+  "format": "tt-serv-tinyml-int8-v1",
+  "description": "Deterministic 4-to-3 dense-layer smoke model for RTL/firmware bring-up.",
+  "input": [12, -6, 8, 3],
+  "weights": [
+    [3, -2, 1, 4],
+    [-4, 2, 5, -3],
+    [2, 3, 4, -1]
+  ],
+  "biases": [-4, 3, 4],
+  "shift": 1,
+  "relu": true,
+  "expected_output": [32, 0, 19],
+  "expected_class": 0
+}

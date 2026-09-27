@@ -1,0 +1,69 @@
+name: test
+on: [push, workflow_dispatch]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install iverilog
+        shell: bash
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      # Set Python up and install cocotb
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Python packages
+        shell: bash
+        run: pip install -r test/requirements.txt
+
+      - name: Run tests
+        run: |
+          python model/test_int8_reference.py
+          cd test
+          make clean
+          make
+          # make will return success even if the test fails, so check for failure in the results.xml
+          ! grep failure results.xml
+          make -f Makefile.mac clean
+          make -f Makefile.mac
+          ! grep failure results-mac-mmio.xml
+          make -f Makefile.spi clean
+          make -f Makefile.spi
+          ! grep failure results-spi.xml
+          make -f Makefile.mem clean
+          make -f Makefile.mem
+          ! grep failure results-mem.xml
+          make -f Makefile.serv clean
+          make -f Makefile.serv
+          ! grep failure results-serv.xml
+          make -f Makefile.extmem clean
+          make -f Makefile.extmem
+          ! grep failure results-extmem.xml
+
+      - name: Test Summary
+        uses: test-summary/action@v2.4
+        with:
+          paths: "test/results.xml"
+        if: always()
+
+      - name: upload waveform and test results
+        if: success() || failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: |
+            test/tb.fst
+            test/results.xml
+            test/results-mac-mmio.xml
+            test/results-spi.xml
+            test/results-mem.xml
+            test/results-serv.xml
+            test/results-extmem.xml
+            test/output/*
