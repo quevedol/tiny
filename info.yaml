@@ -24,6 +24,7 @@ project:
     - "mem/spi_mem_ctrl.v"
     - "mem/spi_mem_bridge.v"
     - "periph/uart_tx.v"
+    - "tech/sky130_clock_gate.v"
     - "soc/serv_soc.v"
     - "soc/serv_extmem_soc.v"
     - "cpu/serv_cpu.v"

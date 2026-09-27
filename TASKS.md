@@ -15,11 +15,11 @@ infraestructura, arquitectura y modelo en un mismo cambio.
   - Entrega: tag oficial de Tiny Tapeout, fecha límite, límite de tiles y
     actualización de `.github/workflows/`.
 
-- [ ] **Ejecutar el primer hardening Sky130.**
+- [x] **Ejecutar el primer hardening Sky130.**
   - Responsable: estudiante.
-  - Entrega: enlace o registro del workflow GDS, resultado de precheck y
-    reporte de área/congestión/timing.
-  - Aceptación: GDS o diagnóstico reproducible del primer fallo.
+  - Entrega: diagnóstico reproducible: `GPL-0301`, 124.941% de utilización
+    (`88 282.219 um^2` de celdas sobre `72 564.595 um^2` de core 2x2).
+  - Aceptación: el tamaño actual está descartado hasta recuperar área.
 
 - [ ] **Ejecutar gate-level simulation Sky130.**
   - Responsable: estudiante.
@@ -34,11 +34,15 @@ infraestructura, arquitectura y modelo en un mismo cambio.
     mantiene estables los buses de CPU y deja progresar el controlador SPI.
   - Aceptación: pasa antes y después de sustituir el clock-gating.
 
-- [ ] **Resolver el clock-gating de SERV.**
-  - Responsable: estudiante propone; supervisor aprueba la arquitectura.
-  - Entrega: solución Sky130 para sustituir o probar `clk & !cpu_wait`, más
-    test de espera durante una transacción SPI.
-  - Aceptación: RTL, gate-level y timing sin reloj lógico no validado.
+- [x] **Implementar el clock-gating de SERV.**
+  - Entrega: wrapper con latch RTL e ICG `sky130_fd_sc_hd__dlclkp`, más test
+    que verifica que no se trunca el pulso cuando inicia una espera SPI.
+  - Pendiente de aceptación: RTL, gate-level y timing sin reloj lógico.
+
+- [ ] **Reducir el área para 2x2.**
+  - Responsable: nosotros.
+  - Entrega: perfil por bloque y rediseño de la ruta de datos de mayor área.
+  - Aceptación: P&R bajo 100%, con margen suficiente para ruteo.
 
 - [ ] **Decidir el tamaño definitivo.**
   - Responsable: supervisor, basado en el reporte físico.

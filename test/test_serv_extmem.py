@@ -32,6 +32,9 @@ async def test_cpu_clock_is_paused_while_serial_memory_waits(dut):
 
     soc = dut.dut
     await with_timeout(RisingEdge(soc.cpu_wait), 50, timeout_unit="us")
+    # cpu_wait is asserted on a system-clock edge. An ICG must complete this
+    # high phase; an AND gate would truncate it immediately.
+    assert int(soc.cpu_clk.value) == 1
     await FallingEdge(dut.clk)
 
     frozen_bus = (

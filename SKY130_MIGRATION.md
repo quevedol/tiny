@@ -14,6 +14,9 @@ ha cambiado para SkyWater `sky130A`.
   `sky130_fd_sc_hd` y `USE_POWER_PINS`.
 - La documentación identifica Sky130 como proceso destino; la interfaz del
   wrapper no cambia: `clk`, `rst_n`, 8 `ui`, 8 `uo` y 8 `uio`.
+- El reloj de SERV se pausa con un wrapper de clock-gating. En RTL usa un
+  latch transparente en fase baja; durante hardening, `VERILOG_DEFINES` activa
+  la celda integrada `sky130_fd_sc_hd__dlclkp`.
 
 ## Línea base verificable
 
@@ -24,19 +27,20 @@ ha cambiado para SkyWater `sky130A`.
   6 094 celdas, 5 556 wires y 8 951 bits de wire. El register file de SERV
   representa 3 153 celdas genéricas. Esta es una línea base de lógica, no una
   medición de área, congestión o timing Sky130.
+- El primer hardening Sky130 confirmó que el diseño actual **no cabe en 2x2**:
+  `88 282.219 um^2` de celdas frente a `72 564.595 um^2` de core, o `124.941%`
+  de utilización. El fallo fue `GPL-0301`, antes de ruteo, timing o DRC.
 
 ## Bloqueos antes de aplicar a tapeout
 
 1. **Fijar el shuttle.** Los workflows usan las etiquetas del template Sky130
    vigente. Antes de publicar, hay que sustituirlas por las que correspondan
    exactamente al shuttle aceptando solicitudes en Tiny Tapeout.
-2. **Harden `2x2`.** El tamaño `2x2` se conserva como hipótesis, no como área
-   aprobada. El SoC completo tiene una estimación de 6 094 celdas genéricas y
-   necesita un GDS Sky130 sin fallos de colocación, ruteo, DRC, LVS ni timing.
-3. **Cerrar el clock-gating.** `serv_extmem_soc.v` pausa SERV mientras la
-   memoria SPI completa una palabra. La expresión RTL `clk & !cpu_wait` fue
-   válida para bring-up, pero el flujo Sky130 debe reemplazarla por una ICG
-   Sky130 validada o por un mecanismo de espera que no genere un reloj lógico.
+2. **Recuperar área para `2x2`.** El primer P&R excede el core por 24.941%.
+   Hace falta una reducción arquitectónica antes de poder intentar ruteo,
+   timing, DRC o LVS en este tamaño.
+3. **Validar el clock-gating.** `serv_extmem_soc.v` ahora usa una ICG Sky130
+   durante hardening. Aún debe completar RTL, gate-level y timing.
 4. **Comprobar hardware externo.** El diseño usa 50 MHz de reloj de entrada y
    genera `SCK=12.5 MHz` con `SPI_CLK_DIV=2`; verificar el Pmod y el devkit
    asociados al shuttle elegido antes de fijar la documentación final.

@@ -2,7 +2,7 @@ SIM ?= icarus
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
 
-SERV_SOURCES = accel/mac_int8.v accel/mac_mmio.v periph/uart_tx.v \
+SERV_SOURCES = accel/mac_int8.v accel/mac_mmio.v periph/uart_tx.v tech/sky130_clock_gate.v \
 	mem/spi_mem_ctrl.v mem/spi_mem_bridge.v soc/serv_soc.v soc/serv_extmem_soc.v \
 	cpu/serv_cpu.v cpu/serv/serv_bufreg.v cpu/serv/serv_bufreg2.v \
 	cpu/serv/serv_alu.v cpu/serv/serv_csr.v cpu/serv/serv_ctrl.v \

@@ -40,9 +40,16 @@ module serv_extmem_soc #(
   wire [31:0] dbus_rdata;
   wire        dbus_ack;
   wire        cpu_wait;
-  // RTL bring-up gate. Sky130 physical hardening must replace or prove this
-  // generated clock with a Sky130-safe clock-gating implementation.
-  wire        cpu_clk = clk & !cpu_wait;
+  wire        cpu_clk_enable = !cpu_wait || !rst_n;
+  wire        cpu_clk;
+
+  // Reset keeps the CPU clock enabled because SERV reset is synchronous. The
+  // wrapper becomes a sky130_fd_sc_hd__dlclkp instance during hardening.
+  sky130_clock_gate cpu_clock_gate (
+      .clk_i  (clk),
+      .gate_i (cpu_clk_enable),
+      .gclk_o (cpu_clk)
+  );
 
   serv_soc #(
       .UART_CLKS_PER_BIT(UART_CLKS_PER_BIT)
