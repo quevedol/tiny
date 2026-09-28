@@ -21,35 +21,31 @@ infraestructura, arquitectura y modelo en un mismo cambio.
     (`88 282.219 um^2` de celdas sobre `72 564.595 um^2` de core 2x2).
   - Aceptación: `2x2` queda descartado; se evaluó `3x2` y un baseline 3x4.
 
-- [ ] **Ejecutar gate-level simulation Sky130.**
-  - Responsable: estudiante.
-  - Entrega: resultado de `GATES=yes` y cualquier corrección de testbench.
-  - Aceptación: la simulación usa `sky130_fd_sc_hd` y no bibliotecas IHP.
+- [x] **Ejecutar gate-level simulation Sky130.**
+  - Entrega: `test/Makefile.board GATES=yes` ejecuta las 5 pruebas de placa
+    sobre un netlist `sky130_fd_sc_hd`; pasan sobre el netlist de síntesis.
+  - Aceptación final: el job `gl_test` de GitHub Actions (netlist post-ruteo).
 
 ## Prioridad 1 — cerrar riesgos de tapeout
 
-- [x] **Mantener la regresión de pausa CPU/SPI.**
-  - Responsable: nosotros.
-  - Entrega: `test_serv_extmem.py` comprueba que `cpu_wait` congela SERV,
-    mantiene estables los buses de CPU y deja progresar el controlador SPI.
-  - Aceptación: pasa antes y después de sustituir el clock-gating.
+- [x] **Mantener la regresión de espera CPU/SPI.**
+  - Entrega: `test_serv_extmem.py` comprueba que SERV mantiene estable su
+    petición mientras el puente reúne la palabra, sin `ack` anticipado y con
+    exactamente un `ack` al final.
 
-- [x] **Implementar el clock-gating de SERV.**
-  - Entrega: wrapper con latch RTL e ICG `sky130_fd_sc_hd__dlclkp_4`, más test
-    que verifica que no se trunca el pulso cuando inicia una espera SPI.
-  - Pendiente de aceptación: RTL, gate-level y timing sin reloj lógico.
+- [x] **Eliminar el clock-gating de SERV.**
+  - Motivo: la compuerta creaba un segundo dominio de reloj (1 191
+    flip-flops) cuyo desfase impedía cerrar hold en 3x2. SERV ya espera el
+    `ack` de Wishbone, así que la pausa de reloj no era necesaria.
+  - Entrega: diseño con un único reloj; regresiones RTL y de placa aprobadas.
 
-- [ ] **Obtener margen de área en 4x2.**
-  - Responsable: nosotros.
-  - Entrega: P&R 4x2. El baseline 3x4 generó GDS con 35.310% de utilización;
-    4x2 debe conservar cierre con menos tiles.
-  - Aceptación: colocación detallada, ruteo y timing aprobados con margen
-    suficiente para cierre físico.
+- [x] **Confirmar el tamaño definitivo.**
+  - Entrega: `info.yaml` y la documentación en `3x2`.
 
-- [ ] **Confirmar el tamaño definitivo.**
-  - Responsable: supervisor, basado en el reporte físico.
-  - Entrega: `info.yaml` congelado en 4x2 u otra alternativa válida.
-  - Aceptación: P&R y timing aprobados para ese tamaño.
+- [ ] **Cerrar el hardening 3x2.**
+  - Entrega: job `gds` con colocación, ruteo, timing (setup y hold en todas
+    las esquinas), DRC, LVS y antenas aprobados; `precheck` y `gl_test` en
+    verde. Historia y estado en `SKY130_MIGRATION.md`.
 
 - [ ] **Validar el hardware externo.**
   - Responsable: estudiante.
@@ -84,4 +80,4 @@ infraestructura, arquitectura y modelo en un mismo cambio.
 - Modelo MNIST final.
 
 Estas extensiones se reconsideran únicamente después de que el hardening
-Sky130 y el clock-gating estén cerrados.
+Sky130 3x2 esté cerrado.

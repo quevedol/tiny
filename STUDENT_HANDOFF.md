@@ -49,7 +49,7 @@ locales de RTL. Debe solicitar revisión antes de modificar:
 - el top module, el pinout o `info.yaml`;
 - el tamaño de tiles o el tag de shuttle;
 - la configuración de SERV, el linker o el protocolo SPI;
-- la arquitectura de clock-gating;
+- la arquitectura de reloj (un único dominio `clk`);
 - pesos/modelos usados como demostrador oficial.
 
 ## Criterio de entrega de cada tarea
