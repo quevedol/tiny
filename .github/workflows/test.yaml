@@ -46,6 +46,9 @@ jobs:
           make -f Makefile.extmem clean
           make -f Makefile.extmem
           ! grep failure results-extmem.xml
+          make -f Makefile.board clean
+          make -f Makefile.board
+          ! grep failure results-board.xml
 
       - name: Test Summary
         uses: test-summary/action@v2.4
@@ -66,4 +69,5 @@ jobs:
             test/results-mem.xml
             test/results-serv.xml
             test/results-extmem.xml
+            test/results-board.xml
             test/output/*

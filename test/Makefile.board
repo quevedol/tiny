@@ -1,0 +1,59 @@
+# Board-level tests: top module + serial Flash/PSRAM model on the uio pins.
+#   make -f Makefile.board              RTL simulation
+#   make -f Makefile.board GATES=yes SKY130_HD_MODELS=<file>
+#       gate-level: needs gate_level_netlist.v and an iverilog command file
+#       listing the sky130_fd_sc_hd cell models (+incdir+ lines allowed).
+
+SIM ?= icarus
+TOPLEVEL_LANG ?= verilog
+SRC_DIR = $(PWD)/../src
+
+PROJECT_SOURCES = project.v \
+	accel/mac_int8.v \
+	accel/mac_mmio.v \
+	mem/spi_flash_read.v \
+	mem/spi_mem_ctrl.v \
+	mem/spi_mem_bridge.v \
+	periph/uart_tx.v \
+	tech/sky130_clock_gate.v \
+	soc/serv_soc.v \
+	soc/serv_extmem_soc.v \
+	cpu/serv_cpu.v \
+	cpu/serv/serv_bufreg.v \
+	cpu/serv/serv_bufreg2.v \
+	cpu/serv/serv_alu.v \
+	cpu/serv/serv_csr.v \
+	cpu/serv/serv_ctrl.v \
+	cpu/serv/serv_decode.v \
+	cpu/serv/serv_immdec.v \
+	cpu/serv/serv_mem_if.v \
+	cpu/serv/serv_rf_if.v \
+	cpu/serv/serv_rf_ram_if.v \
+	cpu/serv/serv_rf_ram.v \
+	cpu/serv/serv_state.v \
+	cpu/serv/serv_debug.v \
+	cpu/serv/serv_top.v \
+	cpu/serv/serv_rf_top.v \
+	cpu/serv/serv_aligner.v \
+	cpu/serv/serv_compdec.v \
+	cpu/serv/serv_synth_wrapper.v
+
+ifneq ($(GATES),yes)
+SIM_BUILD = sim_build/board_rtl
+VERILOG_SOURCES = $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
+else
+SIM_BUILD = sim_build/board_gl
+# The LibreLane netlist has VPWR/VGND ports: add GL_DEFINES=-DUSE_POWER_PINS.
+COMPILE_ARGS += -DGL_TEST -DFUNCTIONAL -DUNIT_DELAY=\#1 $(GL_DEFINES) -c $(SKY130_HD_MODELS)
+VERILOG_SOURCES = $(PWD)/gate_level_netlist.v
+export BOARD_EVENTS = board_events_gl.json
+COCOTB_RESULTS_FILE = results-board-gl.xml
+endif
+
+VERILOG_SOURCES += $(PWD)/serv_extmem_boot_tb.v $(PWD)/tb_board.v
+COMPILE_ARGS += -I$(SRC_DIR)
+TOPLEVEL = tb_board
+COCOTB_TEST_MODULES = test_board
+COCOTB_RESULTS_FILE ?= results-board.xml
+
+include $(shell cocotb-config --makefiles)/Makefile.sim
