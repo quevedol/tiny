@@ -36,6 +36,15 @@ jobs:
               echo "== $f"; head -n 150 "$f"
             done
           done
+          for f in runs/wokwi/*-openroad-resizertiming*/*.log; do
+            echo "== $f"
+            grep -E "RSZ-00(32|46|98)|^ *final \|" "$f" || true
+          done
+          m=runs/wokwi/final/metrics.json
+          if [ -f "$m" ]; then
+            echo "== $m"
+            grep -E '"design__(instance__(count|utilization|area)|core__area)[^"]*"' "$m" | head -n 20
+          fi
 
   precheck:
     needs: gds
