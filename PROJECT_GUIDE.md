@@ -4,10 +4,10 @@
 
 - Shuttle: **Tiny Tapeout Sky130**; la etiqueta exacta se fijará al abrir la solicitud.
 - Proceso: **SkyWater SKY130A 130 nm**.
-- Área reservada: **4x2 (8 tiles)**.
+- Área reservada: **3x2 (6 tiles)**.
 - Arquitectura: **SERV RV32I + MAC INT8 + QSPI Flash/PSRAM externa**.
 - Usuario GitHub y prefijo del top module: **quevedol**.
-- Frecuencia objetivo inicial: **50 MHz internos, QSPI hasta 25 MHz**.
+- Frecuencia: **50 MHz internos**; SPI actual a **12,5 MHz** (objetivo futuro: QSPI hasta 25 MHz).
 - Demostrador inicial: **MNIST 16x16, red densa 256 -> 16 -> 10**.
 - Rama de trabajo: `main`.
 - Fecha interna de congelamiento propuesta: **19 de septiembre de 2026**.
@@ -19,7 +19,7 @@ Esta guía es la fuente de verdad del proyecto. Cada fase debe actualizarse cuan
 
 El diseño estará listo para enviar cuando:
 
-1. Queda en un bloque `4x2` con utilización y congestión aceptables.
+1. Queda en un bloque `3x2` con utilización y congestión aceptables.
 2. Arranca firmware RISC-V desde QSPI Flash.
 3. Lee y escribe la PSRAM del QSPI Pmod.
 4. Ejecuta firmware bare-metal compilado desde C.
@@ -78,7 +78,7 @@ Durante el bring-up inicial el wrapper usa temporalmente `ui_in` y `uio_in` como
 
 ## Fase 0 - Reserva y control de riesgo
 
-- [ ] Confirmar disponibilidad de `4x2` tiles en el shuttle Sky130 seleccionado.
+- [ ] Confirmar disponibilidad de `3x2` tiles en el shuttle Sky130 seleccionado.
 - [x] Confirmar precio y reservar/comprar el espacio.
 - [ ] Confirmar disponibilidad física del QSPI Pmod.
 - [ ] Confirmar la fecha interna de congelamiento propuesta antes del cierre.
@@ -105,13 +105,13 @@ Funciones opcionales, en orden de prioridad:
 
 - [x] Aplicar la infraestructura oficial `ttsky-verilog-template`.
 - [x] Inicializar la rama principal `main`.
-- [x] Configurar `4x2`, 50 MHz y top module inicial.
+- [x] Configurar `3x2`, 50 MHz y top module inicial.
 - [x] Registrar el pinout objetivo en `info.yaml`.
 - [x] Añadir estructura inicial para RTL, firmware y modelo.
 - [x] Ejecutar el primer test RTL en el entorno local.
 - [ ] Confirmar que GitHub Actions genera documentación y GDS.
 
-Validación inicial: compilación con Icarus Verilog y pruebas Cocotb aprobadas a 50 MHz. El hardening 3x4 alcanzó 35.310% de utilización y generó GDS; el siguiente experimento mide el tamaño 4x2 antes de congelar el área final.
+Validación inicial: compilación con Icarus Verilog y pruebas Cocotb aprobadas a 50 MHz. El hardening 3x4 alcanzó 35.310% de utilización y generó GDS. El área final queda en 3x2: el diseño coloca y rutea con DRC, LVS y antenas limpios; el estado de timing está en `SKY130_MIGRATION.md`.
 
 ## Fase 2 - SERV y firmware mínimo
 
@@ -159,7 +159,7 @@ Puerta de avance: un binario bare-metal compilado con GCC ejecuta desde memoria 
 
 El Pmod objetivo contiene Flash W25Q128JV de 16 MB y dos PSRAM APS6404L de 8 MB. La primera ruta validada usa `SPI mode 0`, comandos `0x03` (lectura) y `0x02` (programación), SD0 como MOSI y SD1 como MISO. `spi_mem_bridge` arbitra el bus de instrucciones (Flash) y datos (PSRAM, con prioridad de datos), y el linker coloca `.text`/`.rodata` en Flash y `.data`/`.bss`/pila en PSRAM A. Sigue siendo una ruta conservadora: aún faltan quad, la segunda PSRAM, subpalabras y timeouts para la versión de producción.
 
-Hallazgo y solución de arquitectura: SERV configurado con `W=1` no puede avanzar durante la latencia de una transacción SPI. `spi_mem_bridge` expone `cpu_wait_o` mientras reúne una palabra serie; `serv_extmem_soc` pausa solamente el reloj de SERV y deja al controlador SPI sobre el reloj de sistema. Al completarse la palabra, el puente emite exactamente un `ack` y SERV reanuda la ejecución. El boot integrado ejecutó el firmware C desde Flash, copió el modelo smoke a PSRAM, transmitió `SML1\n` y publicó la firma `SML1` tras 2 652 440 ns en RTL (Flash/PSRAM serie modeladas). La síntesis lógica genérica del top completo reportó 6 094 celdas; es una estimación preliminar y la compuerta RTL debe reemplazarse o validarse con una solución de clock-gating SKY130 durante síntesis física.
+Espera de memoria: SERV espera el `ack` de Wishbone, así que `spi_mem_bridge` lo retiene mientras reúne una palabra serie (`cpu_wait_o` queda como señal observable) y emite exactamente un `ack` al completarla. Una versión anterior además pausaba el reloj de SERV con una compuerta de reloj; se eliminó el 28-09-2026 porque creaba un segundo dominio de reloj (1 191 flip-flops detrás de la compuerta) cuyo desfase impedía cerrar hold en 3x2, y el boot completo funciona igual sin ella. El boot integrado ejecutó el firmware C desde Flash, copió el modelo smoke a PSRAM, transmitió `SML1\n` y publicó la firma `SML1` tras 2 652 440 ns en RTL (Flash/PSRAM serie modeladas). La síntesis con la biblioteca `sky130_fd_sc_hd` reporta unas 8 100 celdas y 65 500 µm² antes de colocar.
 
 ## Fase 5 - MAC INT8
 
@@ -170,7 +170,7 @@ Hallazgo y solución de arquitectura: SERV configurado con `W=1` no puede avanza
 - [x] Crear driver C.
 - [x] Ejecutar 10 000 vectores aleatorios contra la referencia Python, por MMIO.
 
-Registros MAC (`0x2000_0000`): `CMD` +`0x00` (`clear`, `load_bias`, `mac_valid`), activación +`0x04`, peso +`0x08`, bias +`0x0c`, acumulador +`0x10`, resultado INT8 con extensión de signo +`0x14`, estado (`done`, `overflow`, `busy`) +`0x18` y configuración (`relu`, `shift`) +`0x1c`. El comando `mac_valid` conserva la transacción MMIO hasta terminar: cada producto usa ocho ciclos de reloj para reducir área física; el firmware no requiere espera adicional.
+Registros MAC (`0x2000_0000`): `CMD` +`0x00` (`clear`, `load_bias`, `mac_valid`), activación +`0x04`, peso +`0x08`, bias +`0x0c`, acumulador +`0x10`, resultado INT8 con extensión de signo +`0x14`, estado (`done`, `overflow`, `busy`) +`0x18` y configuración (`relu`, `shift`) +`0x1c`. El comando `mac_valid` conserva la transacción MMIO hasta terminar: cada producto usa nueve ciclos de reloj (ocho de desplazamiento y suma, y uno para acumular, que separa la suma de 32 bits del resto y acorta el camino crítico); el firmware no requiere espera adicional.
 
 ## Fase 6 - Modelo TinyML
 

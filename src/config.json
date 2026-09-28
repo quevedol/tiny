@@ -19,8 +19,10 @@
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",
   "CLOCK_PERIOD": 20,
 
-  "//": "Hold slack margin - Increase them in case you are getting hold violations.",
-  "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
+  "//": "Hold slack margins. 3x2 has no room for a pre-route guardband: 0.1 ns",
+  "//": "adds ~1600 hold buffers and detailed placement fails (DPL-0036). Repair",
+  "//": "only real hold violations before routing and keep a small margin after it.",
+  "PL_RESIZER_HOLD_SLACK_MARGIN": 0.0,
   "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.05,
 
   "//": "RUN_LINTER, LINTER_INCLUDE_PDK_MODELS - Disabling the linter is not recommended!",
