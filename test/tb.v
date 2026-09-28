@@ -23,7 +23,19 @@ module tb ();
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
+`ifdef USE_POWER_PINS
+  wire VPWR;
+  wire VGND;
+
+  assign VPWR = 1'b1;
+  assign VGND = 1'b0;
+`endif
+
   tt_um_quevedol_serv_tinyml user_project (
+`ifdef USE_POWER_PINS
+      .VPWR  (VPWR),
+      .VGND  (VGND),
+`endif
       .ui_in  (ui_in),    // Dedicated inputs
       .uo_out (uo_out),   // Dedicated outputs
       .uio_in (uio_in),   // IOs: Input path
