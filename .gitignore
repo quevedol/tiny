@@ -17,3 +17,4 @@ test/results-spi.xml
 test/results-mem.xml
 test/gate_level_netlist.v
 firmware/build/
+model/__pycache__/
