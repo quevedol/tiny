@@ -66,8 +66,7 @@ module tb_board ();
   );
 
 `ifndef GL_TEST
-  // Internal probes, only available before synthesis.
-  wire cpu_clk  = user_project.extmem_soc.cpu_clk;
+  // Internal probe, only available before synthesis.
   wire cpu_wait = user_project.extmem_soc.cpu_wait;
 `endif
 

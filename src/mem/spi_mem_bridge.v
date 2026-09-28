@@ -55,9 +55,8 @@ module spi_mem_bridge #(
   wire ctrl_ack_w;
   wire [31:0] ctrl_rdata_w;
 
-  // SERV W=1 must not advance while the serial engine is collecting a word.
-  // The enclosing SoC uses this signal to gate only the SERV clock; the SPI
-  // controller itself continues on the ungated system clock.
+  // High while the serial engine collects a word. SERV is stalled simply by
+  // withholding its ack until REPLY; the signal is exported for observation.
   assign cpu_wait_o = state_q == WAIT;
   assign ibus_ack_o = state_q == REPLY && !reply_acked_q && !selected_dbus_q;
   assign dbus_ack_o = state_q == REPLY && !reply_acked_q && selected_dbus_q;

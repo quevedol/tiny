@@ -29,6 +29,10 @@ module mac_int8 (
   reg [7:0] multiplier_q;
   reg       product_negative_q;
   reg [2:0] multiply_count_q;
+  // The signed product is registered and accumulated one cycle later, so the
+  // 16-bit multiply step and the 32-bit accumulate never share a clock cycle.
+  reg signed [15:0] product_q;
+  reg       accumulate_q;
 
   wire [7:0] activation_abs_w = activation_i[7] ? (~activation_i + 1'b1) : activation_i;
   wire [7:0] weight_abs_w = weight_i[7] ? (~weight_i + 1'b1) : weight_i;
@@ -36,7 +40,7 @@ module mac_int8 (
       (multiplier_q[0] ? multiplicand_q : 16'd0);
   wire signed [15:0] product_w = product_negative_q ?
       -$signed(partial_product_next_w) : $signed(partial_product_next_w);
-  wire signed [31:0] product_extended_w = {{16{product_w[15]}}, product_w};
+  wire signed [31:0] product_extended_w = {{16{product_q[15]}}, product_q};
   wire signed [31:0] sum_w = accumulator_q + product_extended_w;
   wire signed [31:0] shifted_w = accumulator_q >>> shift_i;
   wire overflow_w = (accumulator_q[31] == product_extended_w[31]) &&
@@ -63,6 +67,8 @@ module mac_int8 (
       multiplier_q <= 8'd0;
       product_negative_q <= 1'b0;
       multiply_count_q <= 3'd0;
+      product_q     <= 16'sd0;
+      accumulate_q  <= 1'b0;
       done_o        <= 1'b0;
       overflow_o    <= 1'b0;
       busy_o        <= 1'b0;
@@ -73,21 +79,27 @@ module mac_int8 (
         accumulator_q <= 32'sd0;
         overflow_o    <= 1'b0;
         busy_o        <= 1'b0;
+        accumulate_q  <= 1'b0;
       end
       else if (load_bias_i) begin
         accumulator_q <= bias_i;
         overflow_o    <= 1'b0;
         busy_o        <= 1'b0;
+        accumulate_q  <= 1'b0;
+      end else if (accumulate_q) begin
+        accumulator_q <= sum_w;
+        done_o        <= 1'b1;
+        overflow_o    <= overflow_o | overflow_w;
+        busy_o        <= 1'b0;
+        accumulate_q  <= 1'b0;
       end else if (busy_o) begin
         partial_product_q <= partial_product_next_w;
         multiplicand_q <= multiplicand_q << 1;
         multiplier_q <= multiplier_q >> 1;
 
         if (multiply_count_q == 3'd7) begin
-          accumulator_q <= sum_w;
-          done_o        <= 1'b1;
-          overflow_o    <= overflow_o | overflow_w;
-          busy_o        <= 1'b0;
+          product_q    <= product_w;
+          accumulate_q <= 1'b1;
         end else begin
           multiply_count_q <= multiply_count_q + 1'b1;
         end

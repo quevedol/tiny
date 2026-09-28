@@ -39,23 +39,16 @@ module serv_extmem_soc #(
   wire        dbus_cyc;
   wire [31:0] dbus_rdata;
   wire        dbus_ack;
+  // High while the bridge collects a serial word. SERV needs no clock gating
+  // for this: it waits for the Wishbone ack, so the whole design stays in the
+  // single clk domain and CTS has no gated-clock skew to balance.
   wire        cpu_wait;
-  wire        cpu_clk_enable = !cpu_wait || !rst_n;
-  wire        cpu_clk;
-
-  // Reset keeps the CPU clock enabled because SERV reset is synchronous. The
-  // wrapper becomes a sky130_fd_sc_hd__dlclkp_4 instance during hardening.
-  sky130_clock_gate cpu_clock_gate (
-      .clk_i  (clk),
-      .gate_i (cpu_clk_enable),
-      .gclk_o (cpu_clk)
-  );
 
   serv_soc #(
       .UART_CLKS_PER_BIT(UART_CLKS_PER_BIT)
   ) soc (
       .clk              (clk),
-      .cpu_clk_i        (cpu_clk),
+      .cpu_clk_i        (clk),
       .rst_n            (rst_n),
       .ibus_addr_o      (ibus_addr),
       .ibus_cyc_o       (ibus_cyc),

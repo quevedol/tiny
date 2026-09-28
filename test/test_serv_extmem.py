@@ -23,12 +23,12 @@ async def test_serv_executes_c_firmware_from_serial_memory(dut):
 
 
 @cocotb.test()
-async def test_cpu_clock_is_paused_while_serial_memory_waits(dut):
-    """Protect the SERV/SPI pause contract before replacing clock-gating.
+async def test_cpu_bus_waits_while_serial_memory_responds(dut):
+    """SERV stalls on its Wishbone ack while the serial word is collected.
 
-    The serial bridge must keep SPI alive while SERV's clock is stopped, and
-    all CPU-side memory signals must remain stable until the word arrives.
-    A future Sky130 ICG implementation must preserve this observable behavior.
+    SERV runs on the ungated system clock. The bridge holds off the ack while
+    the SPI controller works, so SERV's request must stay stable, no ack may
+    be issued early, and exactly one ack must follow the serial word.
     """
     cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
     dut.rst_n.value = 0
@@ -37,9 +37,6 @@ async def test_cpu_clock_is_paused_while_serial_memory_waits(dut):
 
     soc = dut.dut
     await with_timeout(RisingEdge(soc.cpu_wait), 50, timeout_unit="us")
-    # cpu_wait is asserted on a system-clock edge. An ICG must complete this
-    # high phase; an AND gate would truncate it immediately.
-    assert int(soc.cpu_clk.value) == 1
     await FallingEdge(dut.clk)
 
     frozen_bus = (
@@ -49,15 +46,16 @@ async def test_cpu_clock_is_paused_while_serial_memory_waits(dut):
         int(soc.dbus_cyc.value),
         int(soc.dbus_we.value),
     )
+    assert frozen_bus[1] or frozen_bus[3], "a bus request must be pending"
     saw_active_chip_select = False
 
     # A serial word takes far longer than these eight system cycles. During
-    # that interval only the serial controller, not SERV, may make progress.
+    # that interval only the serial controller may make progress.
     for _ in range(8):
         await RisingEdge(dut.clk)
         await Timer(1, unit="ns")
         assert int(soc.cpu_wait.value) == 1
-        assert int(soc.cpu_clk.value) == 0
+        assert int(soc.ibus_ack.value) == 0 and int(soc.dbus_ack.value) == 0
         assert (
             int(soc.ibus_addr.value),
             int(soc.ibus_cyc.value),
@@ -71,8 +69,12 @@ async def test_cpu_clock_is_paused_while_serial_memory_waits(dut):
 
     assert saw_active_chip_select
 
+    # The ack is raised on the same clock edge that ends the wait.
     await with_timeout(FallingEdge(soc.cpu_wait), 50, timeout_unit="us")
-    await FallingEdge(dut.clk)
-    await RisingEdge(dut.clk)
     await Timer(1, unit="ns")
-    assert int(soc.cpu_clk.value) == 1
+    acks = int(soc.ibus_ack.value) + int(soc.dbus_ack.value)
+    for _ in range(3):
+        await RisingEdge(dut.clk)
+        await Timer(1, unit="ns")
+        acks += int(soc.ibus_ack.value) + int(soc.dbus_ack.value)
+    assert acks == 1, f"expected exactly one ack after the word, saw {acks}"

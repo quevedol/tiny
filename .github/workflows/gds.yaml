@@ -18,6 +18,25 @@ jobs:
         with:
           pdk: sky130A
 
+      # Print the post-route timing results at the end of the job log, so
+      # they can be read without downloading the GDS_logs artifact.
+      - name: Timing summary
+        if: always()
+        shell: bash
+        run: |
+          shopt -s nullglob
+          sta=(runs/wokwi/*-openroad-stapostpnr)
+          [ ${#sta[@]} -gt 0 ] || { echo "No post-route STA step found"; exit 0; }
+          dir=${sta[-1]}
+          echo "== $dir"
+          find "$dir" -maxdepth 2 -name '*.rpt' | sort
+          for f in "$dir"/summary.rpt "$dir"/*/summary.rpt; do echo "== $f"; cat "$f"; done
+          for c in nom_ss_100C_1v60 nom_ff_n40C_1v95; do
+            for f in "$dir/$c"/max*.rpt "$dir/$c"/min*.rpt; do
+              echo "== $f"; head -n 150 "$f"
+            done
+          done
+
   precheck:
     needs: gds
     runs-on: ubuntu-24.04
