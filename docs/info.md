@@ -1,24 +1,54 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
-
 ## How it works
 
-SERV TinyML is a fully digital RV32I system-on-chip targeting the SkyWater SKY130 process. A bit-serial SERV CPU executes bare-metal firmware from external SPI Flash and uses external SPI PSRAM for data. A memory-mapped signed INT8 multiply-accumulate unit accelerates dense neural-network layers.
+SERV TinyML is a fully digital RV32I system-on-chip for SkyWater SKY130. A
+bit-serial SERV CPU boots bare-metal firmware from external SPI Flash and uses
+external SPI PSRAM as data memory. A memory-mapped signed INT8
+multiply-accumulate unit is available to firmware for dense-layer kernels.
 
-The first demonstration target is an MNIST classifier using 16x16 input images and a quantized `256 -> 16 -> 10` network. Weights and test images reside in Flash; activations and intermediate results reside in PSRAM.
+The tapeout demonstrator is a quantized `4 -> 3` classifier. Its firmware
+boots from Flash, copies its initialized data to PSRAM, evaluates three INT8
+dot products, writes the `SML1` completion signature, and transmits `SML1\n`
+on UART. The final classifier output is 19.
 
-The project is under active development. The current RTL contains a signed INT8 MAC with a C driver, a fixed upstream revision of SERV configured for RV32I/ILP32, an MMIO fabric, a UART transmitter and a single-bit SPI external-memory path. A smoke test boots C firmware from serial Flash/PSRAM RTL models, checks core RV32I operations, executes a 4 -> 3 INT8 classifier, transmits `SML1` through UART and observes the completion signature. Sky130 physical hardening and clock-gating validation are the next milestones.
+The serial-memory interface is SPI mode 0 in single-bit compatibility mode:
+`uio[1]` is MOSI, `uio[2]` is MISO, and `uio[3]` is SCLK. `uio[0]` selects
+Flash and `uio[6]` selects PSRAM A. Both chip selects are deasserted while the
+SoC is in reset. QSPI SD2/SD3 and PSRAM B are reserved for a later revision.
+
+## Pinout
+
+| Pins | Function |
+|---|---|
+| `uo[0]` | UART TX |
+| `uo[4:1]` | Low four bits of the signed MAC result |
+| `uo[5]` | MAC complete |
+| `uo[6]` | MAC overflow |
+| `uo[7]` | SERV CPU active |
+| `uio[0]` | SPI Flash chip select, active low |
+| `uio[1]` | SPI MOSI |
+| `uio[2]` | SPI MISO input |
+| `uio[3]` | SPI SCLK |
+| `uio[6]` | SPI PSRAM A chip select, active low |
+| `uio[4:5]`, `uio[7]` | Reserved; SD2/SD3 are tri-stated and PSRAM B CS is held high |
+
+`ui[7:0]` are unused by this revision. The design is enabled with `ena=1` and
+is synchronously reset by driving `rst_n=0` for at least ten project-clock
+cycles.
 
 ## How to test
 
-The repository includes RTL regressions for the Tiny Tapeout wrapper, MAC MMIO, SPI, memory bridge, SERV firmware boot and external serial-memory boot.
+The automated regression runs the following checks:
+
+1. MAC arithmetic against the Python INT8 reference.
+2. SERV firmware execution and UART transmission from an RTL memory model.
+3. Flash-to-PSRAM boot through the SPI memory bridge, including the `4 -> 3`
+   classifier and final MAC result 19.
+4. Sky130 GDS generation, physical precheck, and gate-level pin/reset test.
 
 ## External hardware
 
-The prototype uses the Tiny Tapeout QSPI Pmod interface with one Flash device and one PSRAM device. UART access from the Tiny Tapeout demoboard will be used for status and test output.
+For external-hardware bring-up, connect a 3.3 V SPI Flash and one 3.3 V SPI
+PSRAM to the listed `uio` pins, share ground with the Tiny Tapeout board, and
+provide the firmware/model image in Flash before releasing reset. The current
+revision has been validated with RTL device models; the physical programming
+procedure and bench validation are required before production use.

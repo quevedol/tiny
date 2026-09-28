@@ -28,10 +28,13 @@ async def test_project(dut):
     # delays.  Allow those stages to settle after reset before sampling pins.
     await Timer(20, unit="ns")
     assert int(dut.uio_oe.value) == 0xCB
-    assert int(dut.uio_out.value) & 0xC1 == 0xC1
+    # Check the two chip selects directly. Other serial signals can still
+    # carry gate-level unknowns before the first memory transaction settles.
+    assert int(dut.uio_out.value[0]) == 1
+    assert int(dut.uio_out.value[6]) == 1
 
     # ena holds the SoC in reset, so no serial transaction may be initiated.
     dut.ena.value = 0
     await ClockCycles(dut.clk, 2)
     await Timer(20, unit="ns")
-    assert int(dut.uio_out.value) & 0xC1 == 0xC1
+    assert int(dut.uio_out.value) == 0xC1

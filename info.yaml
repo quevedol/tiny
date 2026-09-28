@@ -3,7 +3,7 @@ project:
   title:        "SERV TinyML SoC"      # Project title
   author:       "quevedol"      # GitHub username; replace with a public name if desired
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "RV32I SERV SoC with an INT8 MAC accelerator and external SPI Flash/PSRAM"
+  description:  "RV32I SERV SoC with INT8 MAC, external SPI Flash boot and PSRAM data memory"
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     50000000
 
@@ -51,9 +51,9 @@ project:
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: "UART RX"
-  ui[1]: "Manual inference start"
-  ui[2]: "Test mode"
+  ui[0]: "Unused"
+  ui[1]: "Unused"
+  ui[2]: "Unused"
   ui[3]: ""
   ui[4]: ""
   ui[5]: ""
@@ -62,23 +62,23 @@ pinout:
 
   # Outputs
   uo[0]: "UART TX"
-  uo[1]: "Predicted class bit 0"
-  uo[2]: "Predicted class bit 1"
-  uo[3]: "Predicted class bit 2"
-  uo[4]: "Predicted class bit 3"
-  uo[5]: "Inference done"
-  uo[6]: "Error"
-  uo[7]: "CPU active / debug"
+  uo[1]: "MAC result bit 0"
+  uo[2]: "MAC result bit 1"
+  uo[3]: "MAC result bit 2"
+  uo[4]: "MAC result bit 3"
+  uo[5]: "MAC done"
+  uo[6]: "MAC overflow"
+  uo[7]: "CPU active"
 
   # Bidirectional pins
   uio[0]: "SPI Flash CS"
   uio[1]: "SPI MOSI"
   uio[2]: "SPI MISO"
-  uio[3]: "SPI clock"
-  uio[4]: "Reserved QSPI SD2"
-  uio[5]: "Reserved QSPI SD3"
+  uio[3]: "SPI SCLK"
+  uio[4]: "Reserved QSPI SD2 (tri-stated)"
+  uio[5]: "Reserved QSPI SD3 (tri-stated)"
   uio[6]: "SPI PSRAM A CS"
-  uio[7]: "Reserved PSRAM B CS"
+  uio[7]: "Reserved PSRAM B CS (held high)"
 
 # Do not change!
 yaml_version: 6
