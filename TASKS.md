@@ -42,10 +42,11 @@ infraestructura, arquitectura y modelo en un mismo cambio.
 - [x] **Confirmar el tamaño definitivo.**
   - Entrega: `info.yaml` y la documentación en `3x2`.
 
-- [ ] **Cerrar el hardening 3x2.**
-  - Entrega: job `gds` con colocación, ruteo, timing (setup y hold en todas
-    las esquinas), DRC, LVS y antenas aprobados; `precheck` y `gl_test` en
-    verde. Historia y estado en `SKY130_MIGRATION.md`.
+- [x] **Cerrar el hardening 3x2.**
+  - Entrega: commit `c853560`: `gds`, `precheck` y `gl_test` aprobados; DRC,
+    LVS y antenas limpios; hold cerrado en las 9 esquinas; utilización 82.9%.
+  - Pendiente menor: un camino falla setup por 9.5 ps solo en
+    `max_ss_100C_1v60` (aviso). Detalle en `SKY130_MIGRATION.md`.
 
 - [ ] **Validar el hardware externo.**
   - Responsable: estudiante.

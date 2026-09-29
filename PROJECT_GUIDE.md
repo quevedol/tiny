@@ -109,7 +109,7 @@ Funciones opcionales, en orden de prioridad:
 - [x] Registrar el pinout objetivo en `info.yaml`.
 - [x] Añadir estructura inicial para RTL, firmware y modelo.
 - [x] Ejecutar el primer test RTL en el entorno local.
-- [ ] Confirmar que GitHub Actions genera documentación y GDS.
+- [x] Confirmar que GitHub Actions genera documentación y GDS.
 
 Validación inicial: compilación con Icarus Verilog y pruebas Cocotb aprobadas a 50 MHz. El hardening 3x4 alcanzó 35.310% de utilización y generó GDS. El área final queda en 3x2: el diseño coloca y rutea con DRC, LVS y antenas limpios; el estado de timing está en `SKY130_MIGRATION.md`.
 
@@ -207,10 +207,10 @@ Registros MAC (`0x2000_0000`): `CMD` +`0x00` (`clear`, `load_bias`, `mac_valid`)
 
 ## Fase 9 - Síntesis y área
 
-- [ ] Ejecutar síntesis temprana con CPU, QSPI y MAC.
-- [ ] Mantener utilización preferiblemente por debajo de 70 %.
-- [ ] Obtener slack positivo a 50 MHz o justificar una frecuencia menor.
-- [ ] Revisar congestión, hold, antenas, DRC y LVS.
+- [x] Ejecutar síntesis temprana con CPU, QSPI y MAC.
+- [ ] Mantener utilización preferiblemente por debajo de 70 % (3x2 cierra con 82.9%).
+- [ ] Obtener slack positivo a 50 MHz o justificar una frecuencia menor (positivo en 8 de 9 esquinas; -9.5 ps en `max_ss_100C_1v60`).
+- [x] Revisar congestión, hold, antenas, DRC y LVS.
 
 Orden de reducción si el diseño no cabe:
 

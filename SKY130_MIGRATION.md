@@ -45,12 +45,44 @@ Historia del dimensionamiento:
    la compuerta (el archivo `src/tech/sky130_clock_gate.v` queda en el
    repositorio sin usarse). Tras CTS, STA ya no muestra violaciones de setup y
    el peor hold es de solo -0.047 ns.
-3. Un margen de hold de 0.1 ns antes del ruteo insertó 1 590 buffers (+17.9%
-   de área) y la colocación detallada volvió a fallar (`DPL-0036`). Se repara
-   solo el hold real antes del ruteo (`PL_RESIZER_HOLD_SLACK_MARGIN` = 0.0) y
-   se mantiene 0.05 ns después (`GRT_RESIZER_HOLD_SLACK_MARGIN`).
-4. El job `gds` imprime al final de su log el resumen de STA post-ruteo
-   (paso "Timing summary").
+3. Un margen de hold de 0.1 ns tras CTS insertó 1 590 buffers (+17.9% de
+   área) y la colocación detallada volvió a fallar (`DPL-0036`): unos 1 100
+   flip-flops del banco de registros quedan entre 0.02 y 0.03 ns de holgura,
+   así que cualquier margen por encima de 0.02 ns cuesta más de 1 000 buffers.
+4. Con margen 0 tras CTS, el ruteo cerraba setup pero cinco caminos de
+   registros de desplazamiento de SERV fallaban hold por hasta 11 ps en `ff`,
+   por unos 0.08 ns de desfase entre hojas del árbol de reloj que la
+   estimación tras CTS no ve. `GRT_RESIZER_HOLD_SLACK_MARGIN` no tenía efecto:
+   el paso `ResizerTimingPostGRT` está desactivado por defecto.
+5. Configuración final (`src/config.json`): `PL_RESIZER_HOLD_SLACK_MARGIN` =
+   0.02, que inserta 76 buffers (+0.9% de área) y cierra el hold, más
+   `RUN_POST_GRT_RESIZER_TIMING` = 1 con `GRT_RESIZER_HOLD_SLACK_MARGIN` =
+   0.01 como verificación con parásitos de ruteo global (se ejecutó sin
+   encontrar violaciones que reparar).
+6. El job `gds` imprime al final de su log el resumen de STA post-ruteo, la
+   reparación de hold y las métricas de área (paso "Timing summary").
+
+### Resultado (commit `c853560`, run 36503628717)
+
+`gds`, `precheck` y `gl_test` aprobados. DRC, LVS y antenas limpios.
+Utilización 82.9% del core 3x2 (110 874 um^2).
+
+| Esquina | Peor hold (ns) | Peor setup (ns) |
+|---|---|---|
+| nom_tt_025C_1v80 | 0.1835 | 6.6756 |
+| nom_ss_100C_1v60 | 0.6057 | 0.5767 |
+| nom_ff_n40C_1v95 | 0.0102 | 8.4033 |
+| min_tt_025C_1v80 | 0.1817 | 6.8431 |
+| min_ss_100C_1v60 | 0.6024 | 0.9502 |
+| min_ff_n40C_1v95 | 0.0148 | 8.5143 |
+| max_tt_025C_1v80 | 0.1803 | 6.5331 |
+| max_ss_100C_1v60 | 0.6092 | **-0.0095** |
+| max_ff_n40C_1v95 | 0.0046 | 8.3104 |
+
+Hold queda cerrado en todas las esquinas. En la esquina más lenta con
+parásitos máximos (`max_ss_100C_1v60`) un único camino falla setup por
+9.5 ps a 20 ns (equivale a 49.98 MHz); LibreLane lo reporta como aviso, no
+como error. Quedan también avisos de max slew/cap, sobre todo en `ss`.
 
 ## Línea base verificable
 
