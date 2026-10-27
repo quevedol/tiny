@@ -5,6 +5,11 @@
 
 `default_nettype none
 
+// QvIC Labs logo on met4; the geometry comes from macros/qvic_logo.gds.
+(* blackbox *) (* keep *)
+module qvic_logo ();
+endmodule
+
 module tt_um_quevedol_serv_tinyml (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
@@ -63,6 +68,9 @@ module tt_um_quevedol_serv_tinyml (
   assign uio_oe  = 8'b1100_1011;
 
   wire _unused = &{ui_in, status, status_valid, 1'b0};
+
+  (* keep *)
+  qvic_logo logo ();
 
 endmodule
 
