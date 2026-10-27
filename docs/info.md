@@ -47,7 +47,12 @@ The automated regression runs the following checks:
 
 ## External hardware
 
-For external-hardware bring-up, connect a 3.3 V SPI Flash and one 3.3 V SPI
+The `uio` pinout matches the Tiny Tapeout QSPI Pmod (CS0 Flash on `uio[0]`, SD0/SD1/SCK on
+`uio[1:3]`, SD2/SD3 on `uio[4:5]`, RAM A on `uio[6]`, RAM B on `uio[7]`), so the design can be
+brought up with that Pmod; the firmware/model image is written to its Flash as described in
+https://tinytapeout.com/guides/configure-flash-qspi-pmod/.
+
+Alternatively, connect a 3.3 V SPI Flash and one 3.3 V SPI
 PSRAM to the listed `uio` pins, share ground with the Tiny Tapeout board, and
 provide the firmware/model image in Flash before releasing reset. The current
 revision has been validated with RTL device models; the physical programming

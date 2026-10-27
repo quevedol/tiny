@@ -53,11 +53,11 @@ pinout:
   ui[0]: "Unused"
   ui[1]: "Unused"
   ui[2]: "Unused"
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[3]: "Unused"
+  ui[4]: "Unused"
+  ui[5]: "Unused"
+  ui[6]: "Unused"
+  ui[7]: "Unused"
 
   # Outputs
   uo[0]: "UART TX"
